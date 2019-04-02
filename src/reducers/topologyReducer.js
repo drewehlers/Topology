@@ -13,11 +13,19 @@ const InitialState = {
   servers: [
 
   ],
+  routers: [
+    {
+      id:1,
+      nodeid:1,
+  },
+  ],
+  
    isFetchingNodeData: false,
    fetchNodeDataSuccess: false,
    fetchNodeDataFailure: false,
    nodeLength: 1,
    serverLength: 0,
+   routerLength: 1,
     edges: [  
     ],
     
@@ -42,6 +50,7 @@ export default (state = InitialState, action) => {
       var newServer = {
         id:state.serverLength+1,
         nodeType: 'server',
+        nodeid:state.nodeLength+1,
         imageType: action.imageType
       }
       // var newEdge = {
@@ -64,12 +73,17 @@ export default (state = InitialState, action) => {
       var newNode = {
       id:state.nodeLength+1,
       nodeType: 'router',
-      
-    }
+        }
+        var newRouter = {
+          id:state.routerLength+1,
+          nodeid:state.nodeLength+1,
+        }
       return {
         ...state,
         nodes: [...state.nodes, newNode],
+        routers: [...state.routers, newRouter],
         nodeLength: state.nodeLength+1,
+        routerLength: state.routerLength+1,
         // nodeLength: ...state.nodeLength++,
         }
       case 'CREATE_FIREWALL_NODE':

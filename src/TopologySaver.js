@@ -27,13 +27,13 @@ class TopologySaver extends React.Component {
       var myTopology = this.props.topologyReducer;
       
 
-      fetch('http://127.0.0.1:8080/http://192.168.99.100:81/api/postdummy', {
+      fetch('http://192.168.99.100:81/api/posttest', {
       method: 'POST',
       headers: {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json',
        },
-        body: JSON.stringify(myTopology)
+        data: JSON.stringify(myTopology)
       })
       .then(response => {
         if (response.ok) {

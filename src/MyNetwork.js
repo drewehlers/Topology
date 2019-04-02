@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import { Network, Node, Edge } from '@lifeomic/react-vis-network';
 import { connect } from 'react-redux';
+import serversvg from './images/server.svg';
+import { MdRouter, MdComputer} from "react-icons/md";
+import { FaFire } from "react-icons/fa";
+import firewalljpg from './images/firewall.jpg';
+import routersvg from './images/router.svg';
 import store from './store';
 import initialState from './initialstate';
 import PropTypes from 'prop-types';
@@ -18,34 +23,37 @@ const mapDispatchToProps = dispatch => ({
   const mapStateToProps = state => ({
     nodes: state.nodes,
     edges: state.edges,
+    routers: state.routers,
+    servers: state.servers,
     ...state
   })
   
   
-  const CustomIcon = ({ icon, color = '#5596ed' }) => {
-  const viewBox = 36;
-  const iconSize = 20;
-  const pad = (viewBox - iconSize) / 2;
-  const center = viewBox / 2;
+ 
 
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      
-    >
-      <g>
-        <circle cx={center} cy={center} r={16} fill={color} />
-        <g transform={`translate(${pad}, ${pad})`}>
-          {React.createElement(icon, { color: 'white', size: iconSize })}
+  const CustomIcon = ({ icon, color = '#5596ed' }) => {
+    const viewBox = 36;
+    const iconSize = 20;
+    const pad = (viewBox - iconSize) / 2;
+    const center = viewBox / 2;
+   
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox={`0 0 ${viewBox} ${viewBox}`}
+      >
+        <g>
+          <circle cx={center} cy={center} r={16} fill={color} />
+          <g transform={`translate(${pad}, ${pad})`}>
+            {React.createElement(icon, { color: 'white', size: iconSize })}
+          </g>
         </g>
-      </g>
-    </svg>
-  );
-};
+      </svg>
+    );
+  };
 
 var options = {
-  "height": (window.innerHeight -500) + 'px',
-  "width": (window.innerWidth -25) + 'px',
+  
   "layout": {
       "hierarchical": {
           "direction": "UD",
@@ -56,7 +64,7 @@ var options = {
   },
   "interaction": {
       "dragNodes": false,
-      // "dragView": "false",
+      "dragView": false,
       // "zoomView": "false",
 
   },
@@ -65,6 +73,9 @@ var options = {
           "type": "continuous"
       }
   }};
+
+
+  
   
 class MyNetwork extends Component {
   constructor(props)  {
@@ -72,8 +83,10 @@ class MyNetwork extends Component {
     super(props);
     this.networkref = React.createRef();
     this.state = {
+      routers: this.props.topologyReducer.routers,
       nodes: this.props.topologyReducer.nodes,
       edges: this.props.topologyReducer.edges,
+      servers: this.props.topologyReducer.servers,
     }
     }
 
@@ -86,14 +99,15 @@ class MyNetwork extends Component {
       
       this.setState({
         nodes : nextProps.topologyReducer.nodes,
-        edges: nextProps.topologyReducer.edges
+        edges: nextProps.topologyReducer.edges,
+        routers: nextProps.topologyReducer.routers,
+        servers: nextProps.topologyReducer.servers
     });
     var Network = this.refs.MyNetwork;
     
     var options = {
       layout: {
-        width: (window.innerWidth - 25) + "px",
-        height: (window.innerHeight - 75) + "px",
+        
         
           hierarchical: {
               direction: "UD",
@@ -128,10 +142,41 @@ class MyNetwork extends Component {
     
     nodes(){
       
-      const nodesItems = this.state.nodes.map((node) =>
-          <Node key= {node.id} id={node.id} label={node.nodeType}/>
+      var nodesItems = [];
 
-      );
+      const Router = './images/router.svg';
+      const Firewall = './images/firewall.jpg'
+      const server = './images/server.svg'
+      this.state.nodes.map((node) => {
+        
+      if (node.nodeType=="router") {
+        this.state.routers.map((router) =>{
+        if (router.nodeid==node.id) {
+          var routerid=router.id.toString();
+          var labelname="Router "
+          var routerlabel=labelname+routerid
+          
+          nodesItems.push(<Node key= {node.id} id={node.id} label={routerlabel} component={CustomIcon} icon={MdRouter} color="black"/>);
+        }}
+        );
+        
+      }
+      if (node.nodeType=="firewall") {
+        nodesItems.push(<Node key= {node.id} id={node.id} label={node.nodeType}  component={CustomIcon} icon={FaFire} color="black"/>);
+      }
+      if (node.nodeType=="server") {
+        this.state.servers.map((server) =>{
+          if (server.nodeid==node.id) {
+            var serverid=server.id.toString();
+            var labelname="Server "
+            var serverlabel=labelname+serverid
+        nodesItems.push(<Node key= {node.id} id={node.id} label={serverlabel}  component={CustomIcon} icon={MdComputer} color="black"/>);
+      }}
+        );
+    }})
+      
+      console.log(nodesItems, "node items")
+      
       return (
         <>
             {nodesItems}
@@ -142,7 +187,7 @@ class MyNetwork extends Component {
   edges(){
       
       const edgesItems = this.state.edges.map((edge) => 
-          <Edge key = {edge.id} id={edge.id} from={edge.fromNode}  to={edge.toNode}         />
+          <Edge key = {edge.id} id={edge.id} from={edge.fromNode} to={edge.toNode}         />
       );
       return (
           <>

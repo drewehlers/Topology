@@ -18,7 +18,9 @@ const mapDispatchToProps = dispatch => ({
    * mapStateToProps
   */
   const mapStateToProps = state => ({
+    routers: state.routers,
     ...state
+    
   })
 
 class NodeCreator extends React.Component {
@@ -26,7 +28,9 @@ class NodeCreator extends React.Component {
     super(props);
     const firsttoNode = this.props.topologyReducer.nodeLength+1;
     this.state = {
+      routers: this.props.topologyReducer.routers,
       toNode: firsttoNode,
+      selectedRouter: 1,
       imageType: "Ubuntu Standard", 
     };
     this.handleChange = this.handleChange.bind(this);
@@ -38,6 +42,7 @@ class NodeCreator extends React.Component {
   
     this.setState({
       toNode : nextProps.topologyReducer.nodeLength+1,
+      routers: nextProps.topologyReducer.routers,
       
   });
 }
@@ -60,6 +65,7 @@ class NodeCreator extends React.Component {
     //   }
       createRouterNode = (event) => {
         this.props.createRouterNode();
+        this.getOptions();
       }
       createFirewallNode = (event) => {
         this.props.createFirewallNode();
@@ -76,11 +82,32 @@ class NodeCreator extends React.Component {
         this.setState({ imageType: e.target.value});
       }
 
+      handleChange2(e) {
+        this.setState({ selectedRouter: e.target.value});
+      }
+
       // getOptions = () => {
       //   this.props.topologyReducer.templates.map(template => { 
       //     return <option value={template.id_string}> {template.id_string} </option>;
       //     })
       // }
+      getOptions(){
+        var formOptions = [];
+        this.state.routers.map((router) => {
+        var routerid=router.id.toString();
+        var labelname="Router "
+        var routerlabel=labelname+routerid;
+        formOptions.push(<option key= {router.id} value={router.id}>{routerlabel}</option>)
+        console.log(formOptions, 1)
+        console.log(router, 2)
+        });
+        console.log(formOptions);
+        return (
+                {formOptions}
+           
+        );
+        
+    }
       
   
     render() {
@@ -101,7 +128,15 @@ class NodeCreator extends React.Component {
       </form>
   </Popup>
          <button onClick={this.createRouterNode}>Add a Router</button>
-         <button onClick={this.createFirewallNode}>Add a Firewall</button>
+         {/* <button onClick={this.createFirewallNode}>Add a Firewall</button> */}
+
+
+        <form onSubmit={this.handleSubmit}>
+          <select ref="imageType" value={this.state.selectedRouter} onChange={this.handleChange2}>
+          {this.getOptions().formOptions}
+          </select>
+        <input type="submit" value="Submit" />
+      </form>
         </div>
         );
     }

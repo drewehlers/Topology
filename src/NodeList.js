@@ -45,7 +45,9 @@ class NodeList extends Component {
         );
         
         return (
-            <>
+            <>  <div>
+              Server Information
+            </div>
                 {nodesItems}
             </>
         );
